@@ -103,11 +103,9 @@
 
 ### ✅ 已完成
 - **TimerView**（倒數計時元件，動畫）
-
+- **AppTheme**
 
 ### ⏳ 進行中/待辦
-- **AppTheme**
-    - 尚未完成
 - **PlayerScoreView**
     - 支援自訂樣式，Auto Layout，touchesBegan 快速計分，程式註解清楚。
 - **TestViewController**
