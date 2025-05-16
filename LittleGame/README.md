@@ -5,6 +5,8 @@
 - 練習 iOS App 基本開發，**全部使用 programmatic UIKit（純程式碼 UI，不用 Storyboard）**，遵循 MVC 架構與 UIKit 原則。
 - 雙人同機競速點擊遊戲（倒數計時，分數比大小，輸家轉盤懲罰）。
 - 程式碼需完整備註，邏輯清晰。
+- 參考wireframe.png設計layout。
+- 每個功能、流程都以 programmatic UIKit 方式實作，禁止 storyboard/xib。
 
 ## 2. 架構設計
 
@@ -16,13 +18,14 @@
     - GameState.swift
 - View/
     - PlayerScoreView.swift ←（已完成，支援高頻連打）
-    - GameView.swift
     - GameBoardView.swift ←（待開發）
     - TimerView.swift ←（待開發）
     - PunishmentWheelView.swift（待開發）
 - Controller/
     - GameViewController.swift
     - TestViewController.swift（測試元件用）
+- Assets/
+    - wireframe.png
 
 ### (A) Model
 
@@ -76,10 +79,11 @@
     - 支援自訂樣式，Auto Layout，touchesBegan 快速計分，程式註解清楚。
 - **TestViewController**
     - 可獨立測試 PlayerScoreView 功能、驗證計分與動畫。
+- **TimerView**（倒數計時元件，動畫）
 
 ### ⏳ 進行中/待辦
-
-- **TimerView**（倒數計時元件，動畫）
+- **PlayerScoreView**
+    - 雙人模式。
 - **GameBoardView**（主遊戲組合 UI）
 - **PunishmentWheelView**（轉盤動畫）
 - **GameViewController**（整合多玩家/流程，邏輯重構）
@@ -101,15 +105,6 @@
 
 ---
 
-## 6. 重要討論結論/疑問紀錄
 
-- 每個功能、流程都以 programmatic UIKit 方式實作，禁止 storyboard/xib
-- 元件結構、流程、動畫設計、協作模式等均可在此 canvas 補充備忘
-- Canvas 內容可作為新對話啟動依據，方便跨階段持續追蹤
-
-## 7. 其它備忘/提醒
-
-- Canvas 記錄可隨時擴充討論/設計/檢討，支援跨視窗追蹤。
-- 每完成一階段即時同步，避免遺漏開發細節與設計決策。
 
 
