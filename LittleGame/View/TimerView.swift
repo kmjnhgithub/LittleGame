@@ -6,16 +6,16 @@ class TimerView: UIView {
     private(set) var secondsLeft: Int
     var onTimerEnd: (() -> Void)?
 
-    // 可調主色與緊張色
-    var normalColor: UIColor = .systemBlue
-    var urgentColor: UIColor = .systemOrange
+    // 依賴注入安全設計：主色與緊張色必須於初始化時注入，確保不可變性與一致性
+    let normalColor: UIColor
+    let urgentColor: UIColor
     
     // MARK: - 私有 UI
     private let bgLayer = CAShapeLayer()
     private let progressLayer = CAShapeLayer()
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.monospacedDigitSystemFont(ofSize: 54, weight: .bold)
+        label.font = UIFont.monospacedDigitSystemFont(ofSize: 75, weight: .bold)
         label.textColor = .white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -24,14 +24,19 @@ class TimerView: UIView {
     private var timer: Timer?
     private var isRunning = false
     
-    private let ringWidth: CGFloat = 14
+    private let ringWidth: CGFloat = 20
 
     // MARK: - 初始化
-    init(seconds: Int = 30) {
+    init(seconds: Int = 30,
+         normalColor: UIColor = AppTheme.timerNormalColor,
+         urgentColor: UIColor = AppTheme.timerUrgentColor) {
         self.totalSeconds = seconds
         self.secondsLeft = seconds
+        self.normalColor = normalColor
+        self.urgentColor = urgentColor
         super.init(frame: .zero)
-        backgroundColor = UIColor(red: 16/255, green: 22/255, blue: 44/255, alpha: 1)
+        backgroundColor = .clear
+//        backgroundColor = UIColor(red: 16/255, green: 22/255, blue: 44/255, alpha: 1)
         setupLayers()
         setupUI()
         updateDisplay()
@@ -109,7 +114,7 @@ class TimerView: UIView {
     }
     private func urgentEffect() {
         UIView.animate(withDuration: 0.13, animations: {
-            self.timeLabel.transform = CGAffineTransform(scaleX: 1.75, y: 1.75)
+            self.timeLabel.transform = CGAffineTransform(scaleX: 1.9, y: 1.9)
             self.progressLayer.lineWidth = self.ringWidth + 4
         }) { _ in
             UIView.animate(withDuration: 0.12) {
@@ -122,7 +127,7 @@ class TimerView: UIView {
     }
     private func finishEffect() {
         UIView.animate(withDuration: 0.2, animations: {
-            self.timeLabel.transform = CGAffineTransform(scaleX: 1.35, y: 1.35)
+            self.timeLabel.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
             self.timeLabel.alpha = 0
         }) { _ in
             UIView.animate(withDuration: 0.15) {
@@ -132,4 +137,7 @@ class TimerView: UIView {
         }
         UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
     }
+    
+    // MARK: - 主題更新提醒
+    // 若需要動態變更主題，建議外部重新建立 TimerView 或自行實作 updateTheme() 進行更新
 }

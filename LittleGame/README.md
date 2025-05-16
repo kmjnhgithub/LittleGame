@@ -24,17 +24,15 @@
     - GameController.swift
     - GameState.swift
 - View/
-    - PlayerScoreView.swift ←（待完成）
-    - GameBoardView.swift ←（待開發）
-    - TimerView.swift ←（待開發）
-    - PunishmentWheelView.swift（待開發）
+    - PlayerScoreView.swift 
+    - GameBoardView.swift 
+    - TimerView.swift 
+    - PunishmentWheelView.swift
 - Theme/
-    - AppTheme.swift (待開發)
+    - AppTheme.swift 
 - Controller/
     - GameViewController.swift
-    - TestPlayerScoreViewController.swift（測試元件用）
-    - TestGameBoardViewController.swift（測試元件用）
-    - TestTimerViewController.swift（測試元件用）
+
 - Assets/
     - wireframe.png
 
@@ -82,19 +80,38 @@
 
 ---
 
-## 4. 進度紀錄
+## 4. AppTheme主題設計
+- 主色調：優先選用 iOS 內建顏色（如 .systemBlue, .systemPink, .systemYellow），再依 wireframe 配色微調透明度、深淺等，避免自定義顏色過多。
+
+- 分數區塊：每位玩家一個 PlayerScoreView，背景色根據 wireframe 選用不同系統顏色（如 Player1: .systemBlue，Player2: .systemPink），並加強對比。
+
+- 計分按鈕：每位玩家一個計分按鈕，按鈕顏色需明顯區隔兩方（建議參考 wireframe，例如一藍一紅），按鈕文字皆為白色（.white）。
+
+- 玩家名稱：採用系統標準色（建議 .label 或搭配分數區塊的明亮背景色），確保文字易讀。
+
+- 計時器區塊：背景可設置為 .systemBackground 或 wireframe 亮色調，數字採大字粗體。
+
+- 按壓動畫：所有可互動按鈕皆需有縮放回彈或陰影特效，對應 wireframe 活潑風格。
+
+- 整體背景：主畫面背景色建議為 .systemBackground，適當加入漸層或色塊裝飾，強化派對感。
+
+- 輔助裝飾：可加入表情 icon、動態粒子、勝負/懲罰動畫，符合 wireframe 所營造的派對氣氛。
+
+---
+
+## 5. 進度紀錄
 
 ### ✅ 已完成
-
-- **PlayerScoreView**
-    - 支援自訂樣式，Auto Layout，touchesBegan 快速計分，程式註解清楚。
-- **TestViewController**
-    - 可獨立測試 PlayerScoreView 功能、驗證計分與動畫。
 - **TimerView**（倒數計時元件，動畫）
+
 
 ### ⏳ 進行中/待辦
 - **AppTheme**
     - 尚未完成
+- **PlayerScoreView**
+    - 支援自訂樣式，Auto Layout，touchesBegan 快速計分，程式註解清楚。
+- **TestViewController**
+    - 可獨立測試 PlayerScoreView 功能、驗證計分與動畫。
 - **PlayerScoreView**
     - 雙人模式。
 - **GameBoardView**（主遊戲組合 UI）

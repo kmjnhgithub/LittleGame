@@ -19,8 +19,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
 //        window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window = UIWindow(windowScene: windowScene)
-//        window?.rootViewController = GameViewController() // ✅ 設定我的 root controller
-        window?.rootViewController = TestTimerViewController() // ✅ 測試
+        window?.rootViewController = GameViewController() // ✅ 設定我的 root controller
+//        window?.rootViewController = TestTimerViewController() // ✅ 測試
         window?.makeKeyAndVisible()
     }
     func sceneDidDisconnect(_ scene: UIScene) {
