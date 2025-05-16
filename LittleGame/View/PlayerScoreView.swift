@@ -5,143 +5,105 @@ import UIKit
 /// /// ⚠️ 本元件為競速/遊戲用途，為避免 UIButton 內建 debounce，
 /// 直接使用 touchesBegan 快速觸發連打計分，確保極速手感。
 /// 如日後需兼容輔助功能，建議改回 UIButton 事件機制。
+/// 雙人分數顯示元件
+/// 依 wireframe 左右各一玩家，顯示分數與名稱
 class PlayerScoreView: UIView {
     
-    // MARK: - 屬性（外部可設定樣式與回調）
-    
-    /// 玩家名稱
-    var playerName: String {
-        didSet { nameLabel.text = playerName }
+    // MARK: - 公開方法：分數更新
+    func updateScore(player1: Int, player2: Int) {
+        player1ScoreLabel.text = "\(player1)"
+        player2ScoreLabel.text = "\(player2)"
     }
-    /// 玩家分數
-    var score: Int {
-        didSet { scoreLabel.text = "\(score)" }
+    
+    func updateNames(player1: String, player2: String) {
+        player1NameLabel.text = player1
+        player2NameLabel.text = player2
     }
-    /// 加分按鈕點擊回調
-    var onAddScore: (() -> Void)?
     
-    // MARK: - UI 元件
-    
-    private let nameLabel: UILabel = {
+    // MARK: - 私有 UI 元件
+    private let player1ScoreLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: 48, weight: .bold)
+        label.textColor = AppTheme.player1Color
         label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "0"
+        return label
+    }()
+    private let player2ScoreLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 48, weight: .bold)
+        label.textColor = AppTheme.player2Color
+        label.textAlignment = .center
+        label.text = "0"
+        return label
+    }()
+    private let player1NameLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = AppTheme.player1Color
+        label.textAlignment = .center
+        label.text = "玩家1"
+        return label
+    }()
+    private let player2NameLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = AppTheme.player2Color
+        label.textAlignment = .center
+        label.text = "玩家2"
         return label
     }()
     
-    private let scoreLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 36, weight: .bold)
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    let addButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("＋", for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 28, weight: .bold)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.backgroundColor = UIColor.systemBlue
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 28
-        button.layer.shadowOpacity = 0.15
-        button.layer.shadowOffset = CGSize(width: 2, height: 4)
-        button.isUserInteractionEnabled = false // 只做顯示，觸控交給父 View
-        return button
+    // 左右分隔線（加強視覺對稱，非必要可拿掉）
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = AppTheme.separatorColor.withAlphaComponent(0.2)
+        return view
     }()
     
     // MARK: - 初始化
-    
-    /// 樣式自訂初始化（可傳 bgColor、borderColor、borderWidth）
-    init(
-        playerName: String,
-        score: Int = 0,
-        bgColor: UIColor = .white,
-        borderColor: UIColor = .systemGray3,
-        borderWidth: CGFloat = 1
-    ) {
-        self.playerName = playerName
-        self.score = score
-        super.init(frame: .zero)
-        backgroundColor = bgColor
-        layer.borderColor = borderColor.cgColor
-        layer.borderWidth = borderWidth
-        layer.cornerRadius = 20
-        layer.masksToBounds = false
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupUI()
-        // name/score 初始化
-        nameLabel.text = playerName
-        scoreLabel.text = "\(score)"
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - UI 配置
-    
+    // MARK: - UI 組裝
     private func setupUI() {
-        // 子元件加入 View
-        addSubview(nameLabel)
-        addSubview(scoreLabel)
-        addSubview(addButton)
+        backgroundColor = .clear
         
-        // Auto Layout（直式堆疊）
+        // Player1 垂直 stack
+        let player1Stack = UIStackView(arrangedSubviews: [player1ScoreLabel, player1NameLabel])
+        player1Stack.axis = .vertical
+        player1Stack.alignment = .center
+        player1Stack.spacing = 4
+        
+        // Player2 垂直 stack
+        let player2Stack = UIStackView(arrangedSubviews: [player2ScoreLabel, player2NameLabel])
+        player2Stack.axis = .vertical
+        player2Stack.alignment = .center
+        player2Stack.spacing = 4
+        
+        // 主要水平 stack
+        let mainStack = UIStackView(arrangedSubviews: [player1Stack, separatorView, player2Stack])
+        mainStack.axis = .horizontal
+        mainStack.distribution = .fillEqually
+        mainStack.alignment = .center
+        mainStack.spacing = 8
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(mainStack)
+        
+        // 分隔線寬度
+        separatorView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            scoreLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-            scoreLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            scoreLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            addButton.topAnchor.constraint(equalTo: scoreLabel.bottomAnchor, constant: 16),
-            addButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-            addButton.widthAnchor.constraint(equalToConstant: 56),
-            addButton.heightAnchor.constraint(equalToConstant: 56),
-            addButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -16)
+            separatorView.widthAnchor.constraint(equalToConstant: 1),
+            separatorView.heightAnchor.constraint(equalTo: mainStack.heightAnchor, multiplier: 0.7),
+            mainStack.topAnchor.constraint(equalTo: topAnchor),
+            mainStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            mainStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            mainStack.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
-    }
-    
-    // MARK: - 觸控事件（核心改寫：任何觸控都能觸發計分）
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let location = touch.location(in: self)
-        if addButton.frame.contains(location) {
-            triggerAddScore()
-        }
-        // （如想整塊都能計分，把上面判斷移除）
-    }
-    
-    private func triggerAddScore() {
-        // 按鈕壓縮動畫
-        UIView.animate(withDuration: 0.1, animations: {
-            self.addButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-            self.scoreLabel.transform = CGAffineTransform(scaleX: 1.14, y: 1.14)
-        }) { _ in
-            UIView.animate(withDuration: 0.13) {
-                self.addButton.transform = .identity
-                self.scoreLabel.transform = .identity
-            }
-        }
-        onAddScore?()
-    }
-
-    
-    // MARK: - 外部可呼叫的動畫
-    
-    /// 分數 Label 彈跳動畫（提供外部使用）
-    func animateScoreBounce() {
-        UIView.animate(withDuration: 0.13, animations: {
-            self.scoreLabel.transform = CGAffineTransform(scaleX: 1.23, y: 1.23)
-        }) { _ in
-            UIView.animate(withDuration: 0.13) {
-                self.scoreLabel.transform = .identity
-            }
-        }
     }
 }

@@ -1,12 +1,19 @@
 #  專案架構流程
 
-## 1. 專案目標
+## 1. 專案目標與原則
 
 - 練習 iOS App 基本開發，**全部使用 programmatic UIKit（純程式碼 UI，不用 Storyboard）**，遵循 MVC 架構與 UIKit 原則。
-- 雙人同機競速點擊遊戲（倒數計時，分數比大小，輸家轉盤懲罰）。
-- 程式碼需完整備註，邏輯清晰。
+- 雙人同機競速點擊遊戲（倒數計時，分數比大小，輸家轉盤懲罰）設計兩位玩家。
+- 以清晰、好維護為主，註解充足，程式結構基礎直觀。
 - 參考wireframe.png設計layout。
-- 每個功能、流程都以 programmatic UIKit 方式實作，禁止 storyboard/xib。
+- 透過AppTheme來統一管理所有元件的風格與顏色。
+- 不引入第三方庫
+- 嚴守 Auto Layout，UI 元件需支援樣式參數（bgColor, borderColor, borderWidth）
+- 程式架構自我審查，包含 timer/動畫記憶體安全、平手判斷、主題管理
+- 動畫優化作為獨立步驟，流程與微互動動畫集中在 View class
+- 每個元件/功能單元盡量模組化，可重用/擴充
+- UI/Model 分離，避免 fat controller
+
 
 ## 2. 架構設計
 
@@ -17,13 +24,17 @@
     - GameController.swift
     - GameState.swift
 - View/
-    - PlayerScoreView.swift ←（已完成，支援高頻連打）
+    - PlayerScoreView.swift ←（待完成）
     - GameBoardView.swift ←（待開發）
     - TimerView.swift ←（待開發）
     - PunishmentWheelView.swift（待開發）
+- Theme/
+    - AppTheme.swift (待開發)
 - Controller/
     - GameViewController.swift
-    - TestViewController.swift（測試元件用）
+    - TestPlayerScoreViewController.swift（測試元件用）
+    - TestGameBoardViewController.swift（測試元件用）
+    - TestTimerViewController.swift（測試元件用）
 - Assets/
     - wireframe.png
 
@@ -50,10 +61,11 @@
 
 1. PlayerScoreView
 2. TimerView
-3. GameBoardView
-4. PunishmentWheelView
-5. GameViewController 邏輯整合
-6. 動畫與整體 UI 優化（包含：
+3. AppTheme
+4. GameBoardView
+5. PunishmentWheelView
+6. GameViewController 邏輯整合
+7. 動畫與整體 UI 優化（包含：
 - 流程動畫
 - 分數動畫（如分數 Label 彈跳效果）
 - 轉盤動畫
@@ -67,7 +79,6 @@
     - 色塊（趣味配色、漸層背景等）
     - 節奏音效（按鈕、勝負、轉盤等時機）
     - 其他動態互動元素，強化派對、歡樂氣氛
-- 介面色彩與細節樣式）
 
 ---
 
@@ -82,26 +93,13 @@
 - **TimerView**（倒數計時元件，動畫）
 
 ### ⏳ 進行中/待辦
+- **AppTheme**
+    - 尚未完成
 - **PlayerScoreView**
     - 雙人模式。
 - **GameBoardView**（主遊戲組合 UI）
 - **PunishmentWheelView**（轉盤動畫）
 - **GameViewController**（整合多玩家/流程，邏輯重構）
-
----
-
-## 5. 補充設計原則與討論重點
-
-- 全程採用 programmatic UIKit，不用 Storyboard
-- 以清晰、好維護為主，註解充足，程式結構基礎直觀
-- 不引入第三方庫
-- 嚴守 Auto Layout，UI 元件需支援樣式參數（bgColor, borderColor, borderWidth）
-- UI/Model 分離，避免 fat controller
-- 每個元件/功能單元盡量模組化，可重用/擴充
-- 支援多玩家擴充、主題色切換
-- 動畫優化作為獨立步驟，流程與微互動動畫集中在 View class
-- 程式架構自我審查，包含 timer/動畫記憶體安全、平手判斷、主題管理
-- Canvas 作為專案設計、討論、紀錄依據，分階段檢查同步
 
 ---
 
