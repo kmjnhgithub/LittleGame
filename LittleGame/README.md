@@ -41,10 +41,12 @@
 - Player: id、name、score
 - GameController: 管理 players, 遊戲狀態、倒數
 - GameState: playing、ended、spinning、tie（預留）
+- PlayerScoreView（分數＋按鈕，樣式可自訂、Auto Layout）
+
 
 ### (B) View（元件化、可重用）
 
-- PlayerScoreView（分數＋按鈕，樣式可自訂、Auto Layout）
+
 - TimerView（倒數計時，動畫）
 - GameBoardView（組合 PlayerScoreView & TimerView，支援 StackView）
 - PunishmentWheelView（簡易轉盤，動畫）
