@@ -105,38 +105,38 @@ LittleGame/
 
 ### ✅ 已完成
 - **TimerView**
-    - 倒數計時元件，支援動畫、緊張狀態顏色切換、倒數結束回呼、記憶體安全設計。
+    - 圓形倒數計時元件，支援動畫、緊張階段色彩切換、倒數結束 callback，記憶體安全。
 - **AppTheme**
-    - 統一管理主題色彩、字型、按鈕與元件樣式，便於全域風格維護。
+    - 統一管理全局顏色、字型、按鈕與元件樣式，便於快速維護與主題調整。
 - **PlayerScoreView**
-    - 呈現玩家名稱、分數、極速連點自訂按鈕，支援動畫、Auto Layout、主題樣式參數，程式結構與註解完整。
+    - 呈現玩家名稱、分數、極速連點自訂按鈕，動畫流暢不卡，Auto Layout，支援主題色。
 - **WinnerPopupView**
-    - 遊戲結束彈窗顯示勝利者（或平手），動畫為左進中顯、點擊右滑消失，callback 控制遊戲重設。
-- **雙人模式**
-    - Player 與 PlayerScoreView 已支援雙玩家分數獨立、極速競賽互動。
-- **GameBoardView**
-    - 主遊戲 UI 組裝區，負責 TimerView、GameStartButtonView、PlayerScoreView 的組合與排列，完全不含邏輯、支援 Auto Layout。
+    - 遊戲結束彈窗顯示勝者（含動畫），左滑進場、點擊右滑消失，callback 控制遊戲重設。
 - **GameStartButtonView**
-    - Start/Restart 按鈕元件，支援狀態切換、動畫、主題樣式，對外提供 callback 事件。
+    - Start/Restart 狀態切換、明顯配色，動畫特效與回饋，外部 callback 支援。
+- **GameBoardView**
+    - 主遊戲畫面組裝（TimerView、StartButton、兩個 PlayerScoreView），完全 UI 排版，不含業務邏輯。
+- **GameController**
+    - 業務邏輯集中管理（玩家分數、遊戲狀態、勝負判斷），支援 callback 主動通知外部狀態、分數、結束事件，Controller 完全不碰細節邏輯。
 - **GameViewController**
-    - 精簡 Controller，完全只負責流程管理、事件串接與狀態同步，不直接組 UI 元件、不碰細節邏輯。
-    - 串接 Timer 結束彈窗、popup callback 重設流程、按鈕狀態/流程切換。
-- **完整流程**
-    - 遊戲尚未開始顯示 Start，開始遊戲後按鈕變 Restart，倒數結束正確顯示 WinnerPopup，點擊後遊戲歸零可再開始。
+    - 只做 UI 組裝、事件監聽與流程切換，所有狀態、資料、分數等完全由 GameController 控制與 callback 通知。
+- **完整 MVP 流程**
+    - 支援雙人極速競賽、倒數、分數獨立、勝負自動判斷、彈窗動畫、Start/Restart 流程、UI/邏輯分離。
 
 ---
 
 ### 🔄 進行中 / 待辦
-- **GameController（業務邏輯層）**
-    - 抽離 Controller 中的分數、狀態計算邏輯，未來讓 Controller 只做 UI 流程，利於維護及擴充。
 - **PunishmentWheelView**
-    - 懲罰轉盤動畫區塊（UI/流程預留，尚未開始）
+    - 懲罰輪盤動畫區塊（UI/流程預留，尚未開始）
 - **遊戲規則與擴充**
-    - 遊戲懲罰、多人模式、主題特效等（可依後續需求規劃）
+    - 懲罰規則、多人模式、主題特效等（可依後續需求規劃）
+- **技術筆記與單元測試**
+    - 維護架構設計文件、補充更多單元測試
 
 ---
 
 ### 🚩 下一步
-- 開發 GameController，完成業務邏輯抽離（推薦先行）。
-- 規劃 PunishmentWheelView 或其它互動/動畫元件。
-- 定期補充 README 進度與技術筆記，方便檢討。
+- 實作 PunishmentWheelView
+- 規劃進階懲罰/特效流程
+- 持續優化可維護性、增加更多互動特效、完善 README 與開發筆記
+

@@ -7,6 +7,7 @@
 
 
 enum GameState {
-    case playing
-    case won
+    case idle    // 尚未開始
+    case playing // 進行中
+    case ended   // 結束
 }

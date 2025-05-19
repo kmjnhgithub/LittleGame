@@ -1,9 +1,9 @@
 import UIKit
 
 class GameViewController: UIViewController {
-    var playerA = Player(name: "Player A", score: 0)
-    var playerB = Player(name: "Player B", score: 0)
     private var gameBoardView: GameBoardView!
+    
+    private var gameController = GameController(playerAName: "Player A", playerBName: "Player B")
 
     private var isPlaying = false
 
@@ -11,7 +11,11 @@ class GameViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = AppTheme.mainBackgroundColor
 
-        gameBoardView = GameBoardView(playerA: playerA, playerB: playerB)
+        // UI 組裝
+        gameBoardView = GameBoardView(
+            playerA: gameController.playerA,
+            playerB: gameController.playerB
+        )
         gameBoardView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(gameBoardView)
 
@@ -22,83 +26,92 @@ class GameViewController: UIViewController {
             gameBoardView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
-        // 綁定分數事件
+        // 綁定 Player A/B 計分按鈕事件，僅呼叫 GameController 方法
         gameBoardView.playerAView.onScore = { [weak self] in
             guard let self = self, self.isPlaying else { return }
-            self.playerA.score += 1
-            self.gameBoardView.playerAView.setPlayer(self.playerA)
+            self.gameController.addScoreToPlayerA()
+            self.gameBoardView.playerAView.setPlayer(self.gameController.playerA)
         }
         gameBoardView.playerBView.onScore = { [weak self] in
             guard let self = self, self.isPlaying else { return }
-            self.playerB.score += 1
-            self.gameBoardView.playerBView.setPlayer(self.playerB)
+            self.gameController.addScoreToPlayerB()
+            self.gameBoardView.playerBView.setPlayer(self.gameController.playerB)
         }
 
-        // 按鈕事件
+        // 綁定開始/重啟按鈕事件
         gameBoardView.startButtonView.onTap = { [weak self] in
             self?.handleStartOrRestart()
         }
         gameBoardView.startButtonView.setState(.start)
         showOrHideScoreButtons(enabled: false)
 
-        // Timer 結束
+        // 綁定 Timer 結束事件，呼叫 GameController 結束遊戲
         gameBoardView.timerView.onTimerEnd = { [weak self] in
-            self?.handleGameEnd()
+            self?.gameController.endGame()
         }
+        
+        // 監聽 GameController 狀態與分數變化自動更新 UI
+        gameController.onScoreChanged = { [weak self] player, newScore in
+            guard let self = self else { return }
+            if player.name == self.gameController.playerA.name {
+                self.gameBoardView.playerAView.setPlayer(player)
+            } else {
+                self.gameBoardView.playerBView.setPlayer(player)
+            }
+        }
+        
+        // 監聽狀態改變，自動切換 UI 狀態
+        gameController.onStateChanged = { [weak self] state in
+            guard let self = self else { return }
+            switch state {
+            case .playing:
+                self.showOrHideScoreButtons(enabled: true)
+                self.gameBoardView.startButtonView.setState(.restart)
+            case .idle:
+                self.showOrHideScoreButtons(enabled: false)
+                self.gameBoardView.startButtonView.setState(.start)
+            case .ended:
+                self.showOrHideScoreButtons(enabled: false)
+            }
+        }
+        
+        // 監聽遊戲結束，自動顯示 Winner 彈窗
+        gameController.onGameEnd = { [weak self] winner in
+            guard let self = self else { return }
+            let popup = WinnerPopupView(winnerName: winner) { [weak self] in
+                self?.resetGameAfterPopup()
+            }
+            popup.present(in: self.view)
+        }
+        // ======== End callback ========
+
+        // 預設啟動為 idle 狀態
+        gameController.resetGame()
     }
 
     private func handleStartOrRestart() {
-        // Start or Restart 都做完全 reset + start
         isPlaying = true
-        playerA.score = 0
-        playerB.score = 0
-        gameBoardView.playerAView.setPlayer(playerA)
-        gameBoardView.playerBView.setPlayer(playerB)
+        gameController.startGame()
+        gameBoardView.playerAView.setPlayer(gameController.playerA)
+        gameBoardView.playerBView.setPlayer(gameController.playerB)
         showOrHideScoreButtons(enabled: true)
         gameBoardView.timerView.reset()
         gameBoardView.timerView.start()
-        gameBoardView.startButtonView.setState(.restart)
-    }
-
-    private func handleGameEnd() {
-        isPlaying = false
-        gameBoardView.playerAView.isUserInteractionEnabled = false
-        gameBoardView.playerBView.isUserInteractionEnabled = false
-
-        // 判斷勝負
-        let aScore = playerA.score
-        let bScore = playerB.score
-        let winnerName: String
-        if aScore > bScore {
-            winnerName = "\(playerA.name) 勝利！"
-        } else if bScore > aScore {
-            winnerName = "\(playerB.name) 勝利！"
-        } else {
-            winnerName = "平手"
-        }
-
-        // 彈窗：從左滑入，點擊滑出，callback 重設遊戲
-        let popup = WinnerPopupView(winnerName: winnerName) { [weak self] in
-            self?.resetGameAfterPopup()
-        }
-        popup.present(in: self.view)
     }
     
-
-    
+    // Winner 彈窗 callback，結束後回 idle 狀態
     private func resetGameAfterPopup() {
         // 彈窗 callback：讓按鈕回到 Start 狀態，玩家不能按
         isPlaying = false
-        playerA.score = 0
-        playerB.score = 0
-        gameBoardView.playerAView.setPlayer(playerA)
-        gameBoardView.playerBView.setPlayer(playerB)
-        showOrHideScoreButtons(enabled: false)
+        gameController.resetGame()
+        gameBoardView.playerAView.setPlayer(gameController.playerA)
+        gameBoardView.playerBView.setPlayer(gameController.playerB)
         gameBoardView.timerView.reset()
-        gameBoardView.startButtonView.setState(.start)
     }
 
 
+
+    // 切換分數區互動狀態（只能在 playing 狀態可點）
     private func showOrHideScoreButtons(enabled: Bool) {
         gameBoardView.playerAView.isUserInteractionEnabled = enabled
         gameBoardView.playerBView.isUserInteractionEnabled = enabled
