@@ -22,7 +22,7 @@ LittleGame/
 ├── Model/
 │   ├── Player.swift
 │   ├── GameState.swift
-│   └── GameController.swift
+│   └── GameController.swift            # 專門負責「業務邏輯」層（邏輯處理、狀態管理、分數增減、勝負判斷等）。
 │
 ├── View/
 │   ├── TimerView.swift
@@ -36,7 +36,7 @@ LittleGame/
 │   └── AppTheme.swift
 │
 ├── Controller/
-│   └── GameViewController.swift
+│   └── GameViewController.swift       # 負責 UI 串接與事件監聽，不碰任何遊戲規則邏輯
 │
 ├── Assets/
 │   └── wireframe.png
@@ -103,42 +103,40 @@ LittleGame/
 
 ## 4. 進度紀錄
 
-### 已完成
-- **TimerView**  
-    - 倒數計時元件，支援動畫、緊張狀態顏色切換、倒數結束回呼、記憶體安全。
-- **AppTheme**  
-    - 統一管理主題色彩、字型、按鈕與元件樣式。
-- **PlayerScoreView**  
-    - 呈現玩家名稱、分數、極速連點自訂按鈕，支援動畫、Auto Layout、樣式參數，註解詳盡。
-- **WinnerPopupView**  
-    - 遊戲結束彈窗顯示勝利者或平手，支援動畫（滑入/滑出）、結束 callback。
-- **Player/PlayerScoreView 雙人模式**  
-    - 支援雙玩家獨立分數管理、極速競賽流程。
+### ✅ 已完成
+- **TimerView**
+    - 倒數計時元件，支援動畫、緊張狀態顏色切換、倒數結束回呼、記憶體安全設計。
+- **AppTheme**
+    - 統一管理主題色彩、字型、按鈕與元件樣式，便於全域風格維護。
+- **PlayerScoreView**
+    - 呈現玩家名稱、分數、極速連點自訂按鈕，支援動畫、Auto Layout、主題樣式參數，程式結構與註解完整。
+- **WinnerPopupView**
+    - 遊戲結束彈窗顯示勝利者（或平手），動畫為左進中顯、點擊右滑消失，callback 控制遊戲重設。
+- **雙人模式**
+    - Player 與 PlayerScoreView 已支援雙玩家分數獨立、極速競賽互動。
+- **GameBoardView**
+    - 主遊戲 UI 組裝區，負責 TimerView、GameStartButtonView、PlayerScoreView 的組合與排列，完全不含邏輯、支援 Auto Layout。
+- **GameStartButtonView**
+    - Start/Restart 按鈕元件，支援狀態切換、動畫、主題樣式，對外提供 callback 事件。
+- **GameViewController**
+    - 精簡 Controller，完全只負責流程管理、事件串接與狀態同步，不直接組 UI 元件、不碰細節邏輯。
+    - 串接 Timer 結束彈窗、popup callback 重設流程、按鈕狀態/流程切換。
+- **完整流程**
+    - 遊戲尚未開始顯示 Start，開始遊戲後按鈕變 Restart，倒數結束正確顯示 WinnerPopup，點擊後遊戲歸零可再開始。
 
 ---
 
-### 進行中 / 待辦
-- **GameBoardView**  
-    - 主遊戲組合區，組裝 TimerView、GameStartButtonView、PlayerScoreView 等元件，專責 UI 排列與 Auto Layout。
-- **GameStartButtonView**  
-    - （新）獨立元件，管理 Start/Restart 按鈕狀態、樣式與事件 callback。
-- **GameViewController**  
-    - 進行邏輯重構，僅持有 GameBoardView，負責流程、狀態管理與事件串接。
-- **GameController**  
-    - 遊戲資料邏輯層，進行狀態與分數管理邏輯補全。
-- **PunishmentWheelView**  
-    - 懲罰轉盤動畫（預留，未開始）
+### 🔄 進行中 / 待辦
+- **GameController（業務邏輯層）**
+    - 抽離 Controller 中的分數、狀態計算邏輯，未來讓 Controller 只做 UI 流程，利於維護及擴充。
+- **PunishmentWheelView**
+    - 懲罰轉盤動畫區塊（UI/流程預留，尚未開始）
+- **遊戲規則與擴充**
+    - 遊戲懲罰、多人模式、主題特效等（可依後續需求規劃）
 
 ---
 
-### 下一步
-- 完成 GameStartButtonView stub 與介面。
-- GameBoardView 完成全部元件組合與事件傳遞接口。
-- Controller 重構為僅持有 GameBoardView 與管理遊戲狀態。
-- 定期補充 README 進度與開發筆記。
-
----
-
-
-
-
+### 🚩 下一步
+- 開發 GameController，完成業務邏輯抽離（推薦先行）。
+- 規劃 PunishmentWheelView 或其它互動/動畫元件。
+- 定期補充 README 進度與技術筆記，方便檢討。

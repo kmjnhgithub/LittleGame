@@ -27,7 +27,7 @@ class TimerView: UIView {
     private let ringWidth: CGFloat = 20
 
     // MARK: - 初始化
-    init(seconds: Int = 30,
+    init(seconds: Int = 15,
          normalColor: UIColor = AppTheme.timerNormalColor,
          urgentColor: UIColor = AppTheme.timerUrgentColor) {
         self.totalSeconds = seconds

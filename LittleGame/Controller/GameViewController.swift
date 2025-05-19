@@ -1,115 +1,106 @@
 import UIKit
 
 class GameViewController: UIViewController {
-    // Player A/B
     var playerA = Player(name: "Player A", score: 0)
     var playerB = Player(name: "Player B", score: 0)
+    private var gameBoardView: GameBoardView!
+
+    private var isPlaying = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = AppTheme.mainBackgroundColor
 
-        // TimerView
-        let timerView = TimerView(
-            seconds: 15,
-            normalColor: AppTheme.timerNormalColor,
-            urgentColor: AppTheme.timerUrgentColor
-        )
-        timerView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(timerView)
+        gameBoardView = GameBoardView(playerA: playerA, playerB: playerB)
+        gameBoardView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(gameBoardView)
 
-        
-
-        let playerAView = PlayerScoreView(
-            player: playerA,
-            bgColor: .clear,
-            buttonColor: AppTheme.player1ButtonColor
-        )
-        let playerBView = PlayerScoreView(
-            player: playerB,
-            bgColor: .clear,
-            buttonColor: AppTheme.player2ButtonColor
-        )
-        playerAView.translatesAutoresizingMaskIntoConstraints = false
-        playerBView.translatesAutoresizingMaskIntoConstraints = false
-
-        // 綁定加分邏輯
-        playerAView.onScore = { [weak self] in
-            guard let self = self else { return }
-            self.playerA.score += 1
-            playerAView.setPlayer(self.playerA)
-        }
-        playerBView.onScore = { [weak self] in
-            guard let self = self else { return }
-            self.playerB.score += 1
-            playerBView.setPlayer(self.playerB)
-        }
-
-        // StackView 佈局
-        let stackView = UIStackView(arrangedSubviews: [playerAView, playerBView])
-        stackView.axis = .horizontal
-        stackView.spacing = 32
-        stackView.distribution = .fillEqually
-        stackView.alignment = .center
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stackView)
-
-        // Auto Layout
         NSLayoutConstraint.activate([
-            timerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            timerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 48),
-            timerView.widthAnchor.constraint(equalToConstant: 220),
-            timerView.heightAnchor.constraint(equalTo: timerView.widthAnchor),
-
-//            stackView.topAnchor.constraint(equalTo: timerView.bottomAnchor, constant: 42),
-            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.widthAnchor.constraint(equalToConstant: 440), // 兩個 200 寬 + spacing
-            stackView.heightAnchor.constraint(equalToConstant: 320),
-            stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -80)
+            gameBoardView.topAnchor.constraint(equalTo: view.topAnchor),
+            gameBoardView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            gameBoardView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            gameBoardView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
-        timerView.start()
-        
-        timerView.onTimerEnd = { [weak self] in
-            self?.handleGameEnd(playerAView: playerAView, playerBView: playerBView, timerView: timerView)
+        // 綁定分數事件
+        gameBoardView.playerAView.onScore = { [weak self] in
+            guard let self = self, self.isPlaying else { return }
+            self.playerA.score += 1
+            self.gameBoardView.playerAView.setPlayer(self.playerA)
+        }
+        gameBoardView.playerBView.onScore = { [weak self] in
+            guard let self = self, self.isPlaying else { return }
+            self.playerB.score += 1
+            self.gameBoardView.playerBView.setPlayer(self.playerB)
+        }
+
+        // 按鈕事件
+        gameBoardView.startButtonView.onTap = { [weak self] in
+            self?.handleStartOrRestart()
+        }
+        gameBoardView.startButtonView.setState(.start)
+        showOrHideScoreButtons(enabled: false)
+
+        // Timer 結束
+        gameBoardView.timerView.onTimerEnd = { [weak self] in
+            self?.handleGameEnd()
         }
     }
-    
-    private func handleGameEnd(playerAView: PlayerScoreView, playerBView: PlayerScoreView, timerView: TimerView) {
-        // 禁用兩位玩家按鈕
-        playerAView.isUserInteractionEnabled = false
-        playerBView.isUserInteractionEnabled = false
+
+    private func handleStartOrRestart() {
+        // Start or Restart 都做完全 reset + start
+        isPlaying = true
+        playerA.score = 0
+        playerB.score = 0
+        gameBoardView.playerAView.setPlayer(playerA)
+        gameBoardView.playerBView.setPlayer(playerB)
+        showOrHideScoreButtons(enabled: true)
+        gameBoardView.timerView.reset()
+        gameBoardView.timerView.start()
+        gameBoardView.startButtonView.setState(.restart)
+    }
+
+    private func handleGameEnd() {
+        isPlaying = false
+        gameBoardView.playerAView.isUserInteractionEnabled = false
+        gameBoardView.playerBView.isUserInteractionEnabled = false
 
         // 判斷勝負
-        let aScore = playerAView.player.score
-        let bScore = playerBView.player.score
+        let aScore = playerA.score
+        let bScore = playerB.score
         let winnerName: String
         if aScore > bScore {
-            winnerName = "\(playerAView.player.name) 勝利！"
+            winnerName = "\(playerA.name) 勝利！"
         } else if bScore > aScore {
-            winnerName = "\(playerBView.player.name) 勝利！"
+            winnerName = "\(playerB.name) 勝利！"
         } else {
             winnerName = "平手"
         }
 
-        // 彈出 Winner 視窗
+        // 彈窗：從左滑入，點擊滑出，callback 重設遊戲
         let popup = WinnerPopupView(winnerName: winnerName) { [weak self] in
-            self?.resetGame(playerAView: playerAView, playerBView: playerBView, timerView: timerView)
+            self?.resetGameAfterPopup()
         }
         popup.present(in: self.view)
     }
     
-    private func resetGame(playerAView: PlayerScoreView, playerBView: PlayerScoreView, timerView: TimerView) {
-        // 重設分數
-        self.playerA.score = 0
-        self.playerB.score = 0
-        playerAView.setPlayer(self.playerA)
-        playerBView.setPlayer(self.playerB)
-        // 重新啟用按鈕
-        playerAView.isUserInteractionEnabled = true
-        playerBView.isUserInteractionEnabled = true
-        // 重設 timer
-        timerView.reset()
-        timerView.start()
+
+    
+    private func resetGameAfterPopup() {
+        // 彈窗 callback：讓按鈕回到 Start 狀態，玩家不能按
+        isPlaying = false
+        playerA.score = 0
+        playerB.score = 0
+        gameBoardView.playerAView.setPlayer(playerA)
+        gameBoardView.playerBView.setPlayer(playerB)
+        showOrHideScoreButtons(enabled: false)
+        gameBoardView.timerView.reset()
+        gameBoardView.startButtonView.setState(.start)
+    }
+
+
+    private func showOrHideScoreButtons(enabled: Bool) {
+        gameBoardView.playerAView.isUserInteractionEnabled = enabled
+        gameBoardView.playerBView.isUserInteractionEnabled = enabled
     }
 }
