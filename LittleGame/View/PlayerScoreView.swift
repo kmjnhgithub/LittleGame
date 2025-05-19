@@ -50,7 +50,7 @@ class PlayerScoreView: UIView {
         scoreLabel.translatesAutoresizingMaskIntoConstraints = false
 
         // 自訂按鈕
-        scoreButton.setTitle("+1", font: AppTheme.buttonFont, color: AppTheme.buttonTextColor)
+        scoreButton.setTitle("TAP!", font: AppTheme.buttonFont, color: AppTheme.buttonTextColor)
         scoreButton.buttonColor = buttonColor
         scoreButton.layer.cornerRadius = AppTheme.buttonCornerRadius
         scoreButton.layer.shadowColor = AppTheme.buttonShadowColor.cgColor
